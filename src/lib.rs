@@ -1,7 +1,7 @@
 use jiff::{
+    Span, Unit,
     civil::{Date, DateTime},
     fmt::friendly::{Designator, Direction, FractionalUnit, Spacing, SpanPrinter},
-    Span, Unit,
 };
 use serde::Deserialize;
 use tsify::Tsify;
