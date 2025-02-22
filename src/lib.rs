@@ -1,5 +1,5 @@
 use jiff::{
-    Span, Unit,
+    Span, SpanRound, Unit,
     civil::{Date, DateTime},
     fmt::friendly::{Designator, Direction, FractionalUnit, Spacing, SpanPrinter},
 };
@@ -36,7 +36,8 @@ pub fn duration(
     let options = PrinterOptions::try_from(options)?;
     let printer = options.into_printer();
     let output = if let Some(relative) = relative_date.map(|x| x.parse::<Date>()).transpose()? {
-        printer.duration_to_string(&duration.to_duration(relative)?)
+        let rounding_options = SpanRound::new().relative(relative).largest(Unit::Year);
+        printer.span_to_string(&duration.round(rounding_options)?)
     } else {
         printer.span_to_string(&duration)
     };
