@@ -1,7 +1,10 @@
 use jiff::{
     Span, SpanRound, Unit,
     civil::{Date, DateTime},
-    fmt::friendly::{Designator, Direction, FractionalUnit, Spacing, SpanPrinter},
+    fmt::{
+        friendly::{Designator, Direction, FractionalUnit, Spacing, SpanPrinter},
+        temporal::DateTimePrinter,
+    },
 };
 use serde::Deserialize;
 use tsify::Tsify;
@@ -42,6 +45,17 @@ pub fn duration(
         printer.span_to_string(&duration)
     };
     Ok(output)
+}
+
+/// Get the end date from the start date plus a duration
+#[wasm_bindgen]
+pub fn add(start: &str, start_time_zone: &str, duration: &str) -> Result<String, JsError> {
+    let duration: Span = duration.parse()?;
+    let start_date = start.parse::<DateTime>()?.in_tz(start_time_zone)?;
+    let end_date = start_date.checked_add(duration)?;
+    let end_date_string = DateTimePrinter::new()
+        .timestamp_with_offset_to_string(&end_date.timestamp(), end_date.offset());
+    Ok(end_date_string)
 }
 
 /// Get a list of all time zones
