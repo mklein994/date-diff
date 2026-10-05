@@ -7,7 +7,7 @@ use jiff::{
     },
 };
 use serde::Deserialize;
-use tsify::Tsify;
+use tsify::{Ts, Tsify};
 use wasm_bindgen::prelude::*;
 
 /// Get a friendly description of the amount of time between two dates
@@ -17,9 +17,9 @@ pub fn diff(
     start_time_zone: &str,
     end: &str,
     end_time_zone: &str,
-    options: Options,
+    options: Ts<Options>,
 ) -> Result<String, JsError> {
-    let options = PrinterOptions::try_from(options)?;
+    let options = PrinterOptions::try_from(options.to_rust()?)?;
     let start_date = start.parse::<DateTime>()?.in_tz(start_time_zone)?;
     let end_date = end.parse::<DateTime>()?.in_tz(end_time_zone)?;
     let diff = start_date.until((Unit::Year, &end_date))?;
@@ -33,10 +33,10 @@ pub fn diff(
 pub fn duration(
     duration: &str,
     relative_date: Option<String>,
-    options: Options,
+    options: Ts<Options>,
 ) -> Result<String, JsError> {
     let duration: Span = duration.parse()?;
-    let options = PrinterOptions::try_from(options)?;
+    let options = PrinterOptions::try_from(options.to_rust()?)?;
     let printer = options.into_printer();
     let output = if let Some(relative) = relative_date.map(|x| x.parse::<Date>()).transpose()? {
         let rounding_options = SpanRound::new().relative(relative).largest(Unit::Year);
@@ -69,7 +69,6 @@ pub fn list_time_zones() -> Vec<String> {
 ///
 /// See [`SpanPrinter`]
 #[derive(Tsify, Deserialize)]
-#[tsify(from_wasm_abi)]
 pub struct Options {
     /// How units and designators are spaced
     ///
